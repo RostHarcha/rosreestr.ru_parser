@@ -111,9 +111,9 @@ class Ui_Main_window(object):
         self.button_get_responds = QtWidgets.QPushButton(parent=self.widget)
         self.button_get_responds.setGeometry(QtCore.QRect(450, 100, 171, 31))
         self.button_get_responds.setObjectName("button_get_responds")
-        self.button_reset = QtWidgets.QPushButton(parent=self.widget)
-        self.button_reset.setGeometry(QtCore.QRect(540, 229, 81, 31))
-        self.button_reset.setObjectName("button_reset")
+        # self.button_reset = QtWidgets.QPushButton(parent=self.widget)
+        # self.button_reset.setGeometry(QtCore.QRect(540, 229, 81, 31))
+        # self.button_reset.setObjectName("button_reset")
 
         self.retranslateUi(Main_window)
         QtCore.QMetaObject.connectSlotsByName(Main_window)
@@ -139,4 +139,4 @@ class Ui_Main_window(object):
         self.label_nums_error.setText(_translate("Main_window", "Ошибка"))
         self.label_nums_error_value.setText(_translate("Main_window", "0"))
         self.button_get_responds.setText(_translate("Main_window", "Получить ответы"))
-        self.button_reset.setText(_translate("Main_window", "Обнулить"))
+        # self.button_reset.setText(_translate("Main_window", "Обнулить"))

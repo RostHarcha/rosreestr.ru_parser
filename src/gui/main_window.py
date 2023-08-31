@@ -16,7 +16,7 @@ class MainWindow(QMainWindow):
         self.disable_parser_buttons()
         self.ui.button_launch_driver.clicked.connect(self.launch_driver)
         self.ui.button_send_requests.clicked.connect(self.send_requests)
-        self.ui.button_reset.clicked.connect(self.reset_numbers)
+        # self.ui.button_reset.clicked.connect(self.reset_numbers)
         self.ui.button_load_input_filepath.clicked.connect(self.import_numbers)
 
     def update_indicators(self):
