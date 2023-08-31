@@ -20,8 +20,7 @@ class ParserThread(QThread):
             return self.finished.emit()
         for num, cadastral_number in enumerate(self.cadastral_numbers):
             try:
-                time.sleep(30)
-                # self.parser.request_EGRN(cadastral_number.cadastral_number)
+                self.parser.request_EGRN(cadastral_number.cadastral_number)
                 cadastral_number.status = 'sent'
             except:
                 cadastral_number.status = 'error'
