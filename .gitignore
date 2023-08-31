@@ -1,0 +1,8 @@
+*.ui
+*.json
+*.db
+*.env
+
+/.vscode/
+/bin/
+__pycache__/
