@@ -8,6 +8,6 @@ from playhouse.pool import PooledSqliteExtDatabase
 # DB_PORT = environ['DB_PORT']
 
 database = PooledSqliteExtDatabase(
-    database='database.db',
+    database='bin/database.db',
     stale_timeout=10,
 )
