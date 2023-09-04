@@ -22,8 +22,10 @@ class ParserThread(QThread):
             try:
                 self.parser.request_EGRN(cadastral_number.cadastral_number)
                 cadastral_number.status = 'sent'
-            except:
+            except Exception as e:
                 cadastral_number.status = 'error'
+                with open('exceptions.txt', 'a', encoding='utf-8') as logfile:
+                    logfile.write(f'[{datetime.now()}] ERROR: {e}')
             cadastral_number.save()
             self.progress.emit(num + 1)
         self.finished.emit()
