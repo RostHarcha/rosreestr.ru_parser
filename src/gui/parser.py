@@ -1,7 +1,7 @@
-import time
+from datetime import datetime
 from PyQt6.QtCore import QThread, pyqtSignal
 from ..parser import Parser
-from ..psql_database.models import CadastralNumber
+from ..database.models import CadastralNumber
 
 class ParserThread(QThread):
     started = pyqtSignal(int)

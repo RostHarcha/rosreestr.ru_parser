@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QMainWindow
 from .ui import Ui_Main_window
-from ..psql_database.models import CadastralNumber
+from ..database.models import CadastralNumber
 from .parser import ParserThread
 
 class MainWindow(QMainWindow):
