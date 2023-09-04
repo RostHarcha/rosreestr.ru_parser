@@ -10,9 +10,21 @@ class ParserThread(QThread):
 
     def __init__(self):
         super().__init__()
-        self.cadastral_numbers: list[CadastralNumber] = CadastralNumber.select().where(CadastralNumber.status == 'loaded')
+        self.cadastral_numbers: list[CadastralNumber] = []
         self.parser = Parser()
         self.parser.login()
+
+    def load_cadastral_numbers(self, loaded: bool, error: bool):
+        '''Returns None if no results'''
+        if not (loaded or error):
+            raise
+        if loaded and error:
+            q = (CadastralNumber.status == 'loaded') | (CadastralNumber.status == 'error')
+        elif loaded:
+            q = (CadastralNumber.status == 'loaded')
+        else:
+            q = (CadastralNumber.status == 'error')
+        self.cadastral_numbers = CadastralNumber.select().where(q)
 
     def run(self):
         self.started.emit(self.cadastral_numbers.count())
@@ -24,7 +36,7 @@ class ParserThread(QThread):
                 cadastral_number.status = 'sent'
             except Exception as e:
                 cadastral_number.status = 'error'
-                with open('exceptions.txt', 'a', encoding='utf-8') as logfile:
+                with open('bin/exceptions.txt', 'a', encoding='utf-8') as logfile:
                     logfile.write(f'[{datetime.now()}] ERROR: {e}')
             cadastral_number.save()
             self.progress.emit(num + 1)

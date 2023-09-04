@@ -61,11 +61,17 @@ class MainWindow(QMainWindow):
         self.parser.progress.connect(self.update_progressBar)
 
     def send_requests(self):
-        self.parser.start()
+        try:
+            self.parser.load_cadastral_numbers(self.ui.check_loaded.isChecked(), self.ui.check_error.isChecked())
+            self.parser.start()
+            self.problem()
+        except:
+            self.problem('[ ] Загружено, [ ] Ошибка: нужно выбрать хотя бы одно.')
+            
 
-    def reset_numbers(self):
-        CadastralNumber.reset_all()
-        self.update_indicators()
+    # def reset_numbers(self):
+    #     CadastralNumber.reset_all()
+    #     self.update_indicators()
 
     def problem(self, message: str = None):
         if message is None:
