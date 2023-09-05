@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 from .. import driver
 
 class Parser:
@@ -38,11 +39,16 @@ class Parser:
             self.driver.find_element(driver.By.ID, 'details-button').click()
             self.driver.find_element(driver.By.ID, 'proceed-link').click()
 
-    def request_EGRN(self, value: str):
-        self.driver.get('https://lk.rosreestr.ru/request-access-egrn/')
-        self.click_element(driver.By.CSS_SELECTOR, 'a[href="/request-access-egrn/property-search"]')
-        self.wait_element(driver.By.CSS_SELECTOR, 'input[type=text]').send_keys(value)
-        self.click_element(driver.By.CLASS_NAME, 'rros-ui-lib-table__row')
-        self.click_element(driver.By.CLASS_NAME, 'build-card-wrapper__header-wrapper__action-button')
-        self.click_element(driver.By.CLASS_NAME, 'rros-ui-lib-link_inherit')
-        return self.wait_element(driver.By.CLASS_NAME, 'success-view').text == 'Ваша заявка отправлена в ведомство'
+    def request_EGRN(self, value: str) -> bool:
+        try:
+            self.driver.get('https://lk.rosreestr.ru/request-access-egrn/')
+            self.click_element(driver.By.CSS_SELECTOR, 'a[href="/request-access-egrn/property-search"]')
+            self.wait_element(driver.By.CSS_SELECTOR, 'input[type=text]').send_keys(value)
+            self.click_element(driver.By.CLASS_NAME, 'rros-ui-lib-table__row')
+            self.click_element(driver.By.CLASS_NAME, 'build-card-wrapper__header-wrapper__action-button')
+            self.click_element(driver.By.CLASS_NAME, 'rros-ui-lib-link_inherit')
+            return self.wait_element(driver.By.CLASS_NAME, 'success-view').text == 'Ваша заявка отправлена в ведомство'
+        except Exception as e:
+            with open('bin/exceptions.txt', 'a', encoding='utf-8') as logfile:
+                logfile.write(f'[{datetime.now()}] ERROR: {e}')
+            return False

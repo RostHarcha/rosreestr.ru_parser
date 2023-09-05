@@ -1,4 +1,3 @@
-from datetime import datetime
 from PyQt6.QtCore import QThread, pyqtSignal
 from ..parser import Parser
 from ..database.models import CadastralNumber
@@ -31,13 +30,10 @@ class ParserThread(QThread):
         if self.cadastral_numbers.count() == 0:
             return self.finished.emit()
         for num, cadastral_number in enumerate(self.cadastral_numbers):
-            try:
-                self.parser.request_EGRN(cadastral_number.cadastral_number)
+            if self.parser.request_EGRN(cadastral_number.cadastral_number):
                 cadastral_number.status = 'sent'
-            except Exception as e:
+            else:
                 cadastral_number.status = 'error'
-                with open('bin/exceptions.txt', 'a', encoding='utf-8') as logfile:
-                    logfile.write(f'[{datetime.now()}] ERROR: {e}')
             cadastral_number.save()
             self.progress.emit(num + 1)
         self.finished.emit()
