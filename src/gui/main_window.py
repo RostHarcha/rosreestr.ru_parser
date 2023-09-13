@@ -16,8 +16,8 @@ class MainWindow(QMainWindow):
         self.disable_parser_buttons()
         self.ui.button_launch_driver.clicked.connect(self.launch_driver)
         self.ui.button_send_requests.clicked.connect(self.send_requests)
-        # self.ui.button_reset.clicked.connect(self.reset_numbers)
         self.ui.button_load_input_filepath.clicked.connect(self.import_numbers)
+        self.ui.button_get_responds.clicked.connect(self.get_responds)
 
     def update_indicators(self):
         values = CadastralNumber.get_statuses()
@@ -61,17 +61,22 @@ class MainWindow(QMainWindow):
         self.parser.progress.connect(self.update_progressBar)
 
     def send_requests(self):
+        self.parser.check_loaded = self.ui.check_loaded.isChecked()
+        self.parser.check_error = self.ui.check_error.isChecked()
+        if not (self.parser.check_loaded or self.parser.check_error):
+            self.problem('[ ] Загружено, [ ] Ошибка: нужно выбрать хотя бы одно.')
+            return
+        self.parser.task = 'request'
+        self.parser.start()
+        self.problem()
+    
+    def get_responds(self):
         try:
-            self.parser.load_cadastral_numbers(self.ui.check_loaded.isChecked(), self.ui.check_error.isChecked())
+            self.parser.task = 'collect'
             self.parser.start()
             self.problem()
         except:
-            self.problem('[ ] Загружено, [ ] Ошибка: нужно выбрать хотя бы одно.')
-            
-
-    # def reset_numbers(self):
-    #     CadastralNumber.reset_all()
-    #     self.update_indicators()
+            self.problem('Не удалось запустить Получение ответов.')
 
     def problem(self, message: str = None):
         if message is None:

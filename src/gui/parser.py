@@ -12,28 +12,36 @@ class ParserThread(QThread):
         self.cadastral_numbers: list[CadastralNumber] = []
         self.parser = Parser()
         self.parser.login()
-
-    def load_cadastral_numbers(self, loaded: bool, error: bool):
-        '''Returns None if no results'''
-        if not (loaded or error):
-            raise
-        if loaded and error:
-            q = (CadastralNumber.status == 'loaded') | (CadastralNumber.status == 'error')
-        elif loaded:
-            q = (CadastralNumber.status == 'loaded')
-        else:
-            q = (CadastralNumber.status == 'error')
-        self.cadastral_numbers = CadastralNumber.select().where(q)
+        self.task = 'request'
+        self.check_loaded = False
+        self.check_error = False
+        
+    def get_cadastral_numbers(self) -> list[CadastralNumber] | None:
+        cadastral_numbers = None
+        if self.check_loaded:
+            cadastral_numbers += CadastralNumber.select().where(CadastralNumber.status == 'loaded')
+        if self.check_error:
+            cadastral_numbers += CadastralNumber.select().where(CadastralNumber.status == 'error')
+        return cadastral_numbers
 
     def run(self):
-        self.started.emit(self.cadastral_numbers.count())
-        if self.cadastral_numbers.count() == 0:
-            return self.finished.emit()
-        for num, cadastral_number in enumerate(self.cadastral_numbers):
-            if self.parser.request_EGRN(cadastral_number.cadastral_number):
-                cadastral_number.status = 'sent'
-            else:
-                cadastral_number.status = 'error'
-            cadastral_number.save()
-            self.progress.emit(num + 1)
+        match self.task:
+            case 'request':
+                cadastral_numbers = self.get_cadastral_numbers()
+                if not cadastral_numbers:
+                    return
+                self.started.emit(cadastral_numbers.count())
+                for num, cadastral_number in enumerate(cadastral_numbers):
+                    cadastral_number.status = self.parser.request_EGRN(cadastral_number.cadastral_number)
+                    cadastral_number.save()
+                    self.progress.emit(num + 1)
+            case 'collect':
+                cadastral_numbers = CadastralNumber.select().where(CadastralNumber.status == 'sent')
+                if not cadastral_numbers:
+                    return
+                self.started.emit(cadastral_numbers.count())
+                for num, cadastral_number in enumerate(cadastral_numbers):
+                    cadastral_number.status = self.parser.collect_EGRN(cadastral_number.cadastral_number)
+                    cadastral_number.save()
+                    self.progress.emit(num + 1)
         self.finished.emit()
