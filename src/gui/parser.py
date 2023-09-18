@@ -17,12 +17,13 @@ class ParserThread(QThread):
         self.check_error = False
         
     def get_cadastral_numbers(self) -> list[CadastralNumber] | None:
-        cadastral_numbers = None
+        if self.check_loaded and self.check_error:
+            return CadastralNumber.select().where((CadastralNumber.status == 'loaded') | (CadastralNumber.status == 'error'))
         if self.check_loaded:
-            cadastral_numbers += CadastralNumber.select().where(CadastralNumber.status == 'loaded')
+            return CadastralNumber.select().where(CadastralNumber.status == 'loaded')
         if self.check_error:
-            cadastral_numbers += CadastralNumber.select().where(CadastralNumber.status == 'error')
-        return cadastral_numbers
+            return CadastralNumber.select().where(CadastralNumber.status == 'error')
+        return None
 
     def run(self):
         match self.task:
