@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QMainWindow
+from PyQt6.QtWidgets import QMainWindow, QTableWidgetItem
 from .ui import Ui_Main_window
 from ..database.models import CadastralNumber
 from .parser import ParserThread
@@ -18,9 +18,16 @@ class MainWindow(QMainWindow):
         self.ui.button_send_requests.clicked.connect(self.send_requests)
         self.ui.button_load_input_filepath.clicked.connect(self.import_numbers)
         self.ui.button_get_responds.clicked.connect(self.get_responds)
+        self.ui.clear_stat.clicked.connect(self.clear_stat)
 
     def update_indicators(self):
         values = CadastralNumber.get_statuses()
+        self.ui.tableWidget.clear()
+        self.ui.tableWidget.setRowCount(values.total)
+        for n, num in enumerate(CadastralNumber.select()):
+            self.ui.tableWidget.setItem(n, 0, QTableWidgetItem(num.cadastral_number))
+            self.ui.tableWidget.setItem(n, 1, QTableWidgetItem(num.created_at))
+            self.ui.tableWidget.setItem(n, 2, QTableWidgetItem(num.status))
         def set_value(label, value: int):
             percent = 0 if values.total == 0 else int(value / values.total * 100)
             label.setText(f'{value}\t({percent}%)')
@@ -45,6 +52,11 @@ class MainWindow(QMainWindow):
         self.disable_parser_buttons()
         self.ui.progressBar.setMinimum(0)
         self.ui.progressBar.setMaximum(cadastral_numbers_count)
+        
+    def clear_stat(self):
+        for num in CadastralNumber.select():
+            num.delete_instance()
+        self.update_indicators()
 
     def parser_finished(self):
         self.ui.progressBar.setMaximum(100)

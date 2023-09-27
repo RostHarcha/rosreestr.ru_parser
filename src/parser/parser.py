@@ -10,7 +10,7 @@ class Parser:
         time.sleep(5)
         return driver.WebDriverWait(
             driver=self.driver,
-            timeout=6,
+            timeout=10,
             poll_frequency=2
         ).until(
             method=driver.EC.presence_of_element_located((by, value))
