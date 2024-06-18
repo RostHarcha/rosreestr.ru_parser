@@ -1,4 +1,5 @@
 from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
 
 
 def get_driver() -> webdriver.Chrome:
@@ -9,6 +10,10 @@ def get_driver() -> webdriver.Chrome:
     options.add_argument('--ignore-certificate-errors')
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     options.add_experimental_option('detach', True)
-    driver = webdriver.Chrome(options=options)
-    # driver.set_window_size(800, 600)
+    driver = webdriver.Chrome(
+        options=options,
+        service=webdriver.ChromeService(
+            ChromeDriverManager().install()
+        )
+    )
     return driver
