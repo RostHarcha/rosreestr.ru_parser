@@ -69,21 +69,35 @@ class ParserThread(QThread):
     def _is_cadastral_number(self, value: str) -> bool:
         return bool(re.match(r'\d{2}:\d{2}:\d{6,7}:\d*', value))
     
+    def close_errors(self):
+        try:
+            for close_button in self.driver.find_elements(By.CSS_SELECTOR, '.rros-ui-lib-error button'):
+                close_button.click()
+        except:
+            pass
+    
+    def click_login_button(self):
+        try:
+            self._wait_element('div.login-link').click()
+        except:
+            self.close_errors()
+            self._wait_element('div.login-link').click()
+        
     def login(self, login: str, password: str):
         self.driver.get('http://lk.rosreestr.ru/request-access-egrn/property-search')
-        self._wait_element('div.login-link').click()
+        self.click_login_button()
         self._wait_element('input#login').send_keys(login)
         self._wait_element('input#password').send_keys(password)
         self._wait_element('//button[text()=" Войти "]', by=By.XPATH).click()
     
     def login_qrCode(self):
         self.driver.get('http://lk.rosreestr.ru/request-access-egrn/property-search')
-        self._wait_element('div.login-link').click()
+        self.click_login_button()
         self._wait_element('//button[text()=" QR-код "]', by=By.XPATH).click()
     
     def login_ESigrature(self):
         self.driver.get('http://lk.rosreestr.ru/request-access-egrn/property-search')
-        self._wait_element('div.login-link').click()
+        self.click_login_button()
         self._wait_element('//button[text()=" Эл. подпись "]', by=By.XPATH).click()
     
     def request_EGRN(self, cadastral_number: str) -> bool:

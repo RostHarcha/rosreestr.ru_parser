@@ -2,7 +2,11 @@
 *.json
 *.db
 *.env
+*.ico
+*.spec
 
 .vscode/
 .venv/
 __pycache__/
+build/
+dist/
