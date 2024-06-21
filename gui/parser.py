@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.remote.webelement import WebElement
 from PyQt6.QtCore import QThread, pyqtSignal
 from driver import get_driver
 from database.models import CadastralNumber
@@ -154,27 +155,30 @@ class ParserThread(QThread):
         self.current_cadastral_number.emit('')
         database.close()
     
+    def donwload_on_page(self, rowgroup: WebElement):
+        for row in rowgroup.find_elements(By.CSS_SELECTOR, 'div[role="row"]'):
+            status = row.find_element(By.CSS_SELECTOR, 'div[data-test-id="cell-4"]').text
+            if status != 'Выполнено':
+                continue
+            cadastral_number = CadastralNumber.get_or_none(
+                CadastralNumber.status == 'sent',
+                CadastralNumber.cadastral_number == row.find_element(By.CSS_SELECTOR, 'div[data-test-id="cell-2"]').text
+            )
+            if cadastral_number:
+                row.find_element(By.TAG_NAME, 'a').click()
+                cadastral_number.status = 'downloaded'
+                cadastral_number.save()
+                self.update_indicators()
+    
     def download(self):
         database.connect(True)
         download_url = 'https://lk.rosreestr.ru/request-access-egrn/my-claims'
         self.driver.get(download_url)
         rowgroup = self._wait_element('div[role="rowgroup"]')
         next_button = self.driver.find_element(By.CSS_SELECTOR, 'button.rros-ui-lib-table-pagination__btn--next')
+        self.donwload_on_page(rowgroup)
         while next_button.get_attribute('disabled') is None:
-            for row in rowgroup.find_elements(By.CSS_SELECTOR, 'div[role="row"]'):
-                status = row.find_element(By.CSS_SELECTOR, 'div[data-test-id="cell-4"]').text
-                if status != 'Выполнено':
-                    continue
-                cadastral_number = CadastralNumber.get_or_none(
-                    CadastralNumber.status == 'sent',
-                    CadastralNumber.cadastral_number == row.find_element(By.CSS_SELECTOR, 'div[data-test-id="cell-2"]').text
-                )
-                if cadastral_number:
-                    row.find_element(By.TAG_NAME, 'a').click()
-                    cadastral_number.status = 'downloaded'
-                    cadastral_number.save()
-                    self.update_indicators()
-                    time.sleep(10)
-            next_button.click()
             time.sleep(1)
+            next_button.click()
+            self.donwload_on_page(rowgroup)
         database.close()
