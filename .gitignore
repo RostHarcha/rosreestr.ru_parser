@@ -2,8 +2,6 @@
 *.json
 *.db
 *.env
-*.ico
-*.spec
 
 .vscode/
 .venv/
