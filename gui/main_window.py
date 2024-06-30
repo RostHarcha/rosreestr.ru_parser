@@ -26,7 +26,7 @@ class MainWindow(QMainWindow):
         self.parser.update_indicators()
     
     def closeEvent(self, a0):
-        self.parser.driver.close()
+        self.parser.driver.quit()
         return super().closeEvent(a0)
 
     def update_indicators(self, new, sent, error, downloaded):

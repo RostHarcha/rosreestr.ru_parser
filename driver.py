@@ -16,4 +16,5 @@ def get_driver() -> webdriver.Chrome:
             ChromeDriverManager().install()
         )
     )
+    driver.set_page_load_timeout(3 * 60)
     return driver
